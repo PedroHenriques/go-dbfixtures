@@ -23,7 +23,7 @@ fi
 
 if [ $BUILD_DOCKER_IMG -eq 1  ]; then
   echo "Build the Docker image";
-  docker build -f ./docker/Dockerfile-linux --pull --rm -t go-dbfixtures:latest .;
+  docker build -f ./docker/Dockerfile --pull --rm -t go-dbfixtures:latest .;
 fi
 
 CMD="go test -v -cover $DIRS";
