@@ -2,9 +2,6 @@ FROM golang:1.19-buster
 
 WORKDIR /usr/src/app
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y zip
-
 # Copy the repo into the container
 ADD . .
 
