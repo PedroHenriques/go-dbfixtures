@@ -88,8 +88,8 @@ func (suite *dbfixturesTestSuite) TestDbfixturesInsertFixturesItShouldCallEachDr
 	fixturesHandler := dbfixtures.New(suite.mockDrivers[0], suite.mockDrivers[1])
 	fixturesHandler.InsertFixtures([]string{"table1", "table5"}, fixtures)
 
-	suite.mockDrivers[0].AssertNumberOfCalls(suite.T(), "InsertFixtures", 2)
-	suite.mockDrivers[1].AssertNumberOfCalls(suite.T(), "InsertFixtures", 2)
+	suite.mockDrivers[0].AssertExpectations(suite.T())
+	suite.mockDrivers[1].AssertExpectations(suite.T())
 }
 
 func TestDbfixturesSuite(t *testing.T) {
