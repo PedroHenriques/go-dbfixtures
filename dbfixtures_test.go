@@ -96,6 +96,9 @@ func TestDbfixturesSuite(t *testing.T) {
 	suite.Run(t, new(dbfixturesTestSuite))
 }
 
+/*
+mockDriver is a mock of the Driver struct to be used in testing.
+*/
 type mockDriver struct {
 	mock.Mock
 	truncateDefaultCall       *mock.Call
@@ -103,17 +106,17 @@ type mockDriver struct {
 }
 
 func (mock *mockDriver) Truncate(tableNames []string) error {
-	mock.Called(tableNames)
+	args := mock.Called(tableNames)
 
-	return nil
+	return args.Error(0)
 }
 func (mock *mockDriver) InsertFixtures(tableName string, fixtures []interface{}) error {
-	mock.Called(tableName, fixtures)
+	args := mock.Called(tableName, fixtures)
 
-	return nil
+	return args.Error(0)
 }
 func (mock *mockDriver) Close() error {
-	mock.Called()
+	args := mock.Called()
 
-	return nil
+	return args.Error(0)
 }
