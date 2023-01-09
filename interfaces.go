@@ -2,6 +2,7 @@ package dbfixtures
 
 type IDbfixtures interface {
 	InsertFixtures(tableNames []string, fixtures map[string][]interface{}) error
+	CloseDrivers() error
 }
 
 type IDriver interface {

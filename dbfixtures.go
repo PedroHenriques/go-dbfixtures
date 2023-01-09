@@ -37,3 +37,18 @@ func (handler *dbfixtures) InsertFixtures(
 
 	return nil
 }
+
+/*
+CloseDrivers will call each registered driver to perform any necessary cleanup
+operations to before the drivers are deleted.
+*/
+func (handler *dbfixtures) CloseDrivers() error {
+	for _, driver := range handler.drivers {
+		err := driver.Close()
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}

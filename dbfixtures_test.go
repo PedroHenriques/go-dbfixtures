@@ -19,11 +19,6 @@ func (suite *dbfixturesTestSuite) SetupTest() {
 	driver1 := &mockDriver{}
 	driver2 := &mockDriver{}
 
-	driver1.truncateDefaultCall = driver1.On("Truncate", mock.Anything).Return(nil)
-	driver2.truncateDefaultCall = driver2.On("Truncate", mock.Anything).Return(nil)
-	driver1.insertFixturesDefaultCall = driver1.On("InsertFixtures", mock.Anything, mock.Anything).Return(nil)
-	driver2.insertFixturesDefaultCall = driver2.On("InsertFixtures", mock.Anything, mock.Anything).Return(nil)
-
 	suite.mockDrivers = []*mockDriver{driver1, driver2}
 }
 
@@ -34,6 +29,11 @@ func (suite *dbfixturesTestSuite) TestNewItShouldReturnAnInstanceOfTheTypeDbfixt
 }
 
 func (suite *dbfixturesTestSuite) TestDbfixturesInsertFixturesItShouldCallEachDriverTruncateMethodOnce() {
+	suite.mockDrivers[0].On("Truncate", mock.Anything).Return(nil)
+	suite.mockDrivers[1].On("Truncate", mock.Anything).Return(nil)
+	suite.mockDrivers[0].On("InsertFixtures", mock.Anything, mock.Anything).Return(nil)
+	suite.mockDrivers[1].On("InsertFixtures", mock.Anything, mock.Anything).Return(nil)
+
 	fixtures := make(map[string][]interface{})
 	fixtures["table1"] = []interface{}{"some object"}
 
@@ -45,10 +45,10 @@ func (suite *dbfixturesTestSuite) TestDbfixturesInsertFixturesItShouldCallEachDr
 }
 
 func (suite *dbfixturesTestSuite) TestDbfixturesInsertFixturesItShouldCallEachDriverTruncateMethodWithTheListOfTableNames() {
-	suite.mockDrivers[0].truncateDefaultCall.Unset()
-	suite.mockDrivers[1].truncateDefaultCall.Unset()
 	suite.mockDrivers[0].On("Truncate", []string{"first table", "another table"}).Return(nil)
 	suite.mockDrivers[1].On("Truncate", []string{"first table", "another table"}).Return(nil)
+	suite.mockDrivers[0].On("InsertFixtures", mock.Anything, mock.Anything).Return(nil)
+	suite.mockDrivers[1].On("InsertFixtures", mock.Anything, mock.Anything).Return(nil)
 
 	fixtures := make(map[string][]interface{})
 	fixtures["first table"] = []interface{}{"some object"}
@@ -62,6 +62,11 @@ func (suite *dbfixturesTestSuite) TestDbfixturesInsertFixturesItShouldCallEachDr
 }
 
 func (suite *dbfixturesTestSuite) TestDbfixturesInsertFixturesItShouldCallEachDriverInsertFixturesMethodOnceForEachTable() {
+	suite.mockDrivers[0].On("Truncate", mock.Anything).Return(nil)
+	suite.mockDrivers[1].On("Truncate", mock.Anything).Return(nil)
+	suite.mockDrivers[0].On("InsertFixtures", mock.Anything, mock.Anything).Return(nil)
+	suite.mockDrivers[1].On("InsertFixtures", mock.Anything, mock.Anything).Return(nil)
+
 	fixtures := make(map[string][]interface{})
 	fixtures["first table"] = []interface{}{"some object"}
 	fixtures["another table"] = []interface{}{"another object"}
@@ -74,9 +79,8 @@ func (suite *dbfixturesTestSuite) TestDbfixturesInsertFixturesItShouldCallEachDr
 }
 
 func (suite *dbfixturesTestSuite) TestDbfixturesInsertFixturesItShouldCallEachDriverInsertFixturesMethodWithEachTableFixtures() {
-	suite.mockDrivers[0].insertFixturesDefaultCall.Unset()
-	suite.mockDrivers[1].insertFixturesDefaultCall.Unset()
-
+	suite.mockDrivers[0].On("Truncate", mock.Anything).Return(nil)
+	suite.mockDrivers[1].On("Truncate", mock.Anything).Return(nil)
 	suite.mockDrivers[0].On("InsertFixtures", "table1", []interface{}{"some object"}).Return(nil)
 	suite.mockDrivers[0].On("InsertFixtures", "table5", []interface{}{"another object"}).Return(nil)
 	suite.mockDrivers[1].On("InsertFixtures", "table1", []interface{}{"some object"}).Return(nil)
@@ -94,8 +98,10 @@ func (suite *dbfixturesTestSuite) TestDbfixturesInsertFixturesItShouldCallEachDr
 }
 
 func (suite *dbfixturesTestSuite) TestDbfixturesInsertFixturesItShouldReturnAnErrorIfACallToTheDriverTruncateReturnAnError() {
-	suite.mockDrivers[1].truncateDefaultCall.Unset()
+	suite.mockDrivers[0].On("Truncate", mock.Anything).Return(nil)
 	suite.mockDrivers[1].On("Truncate", []string{"first table", "another table"}).Return(errors.New("Error from the unit test"))
+	suite.mockDrivers[0].On("InsertFixtures", mock.Anything, mock.Anything).Return(nil)
+	suite.mockDrivers[1].On("InsertFixtures", mock.Anything, mock.Anything).Return(nil)
 
 	fixtures := make(map[string][]interface{})
 	fixtures["first table"] = []interface{}{"some object"}
@@ -108,7 +114,8 @@ func (suite *dbfixturesTestSuite) TestDbfixturesInsertFixturesItShouldReturnAnEr
 }
 
 func (suite *dbfixturesTestSuite) TestDbfixturesInsertFixturesItShouldReturnAnErrorIfACallToTheDriverInsertFixturesReturnAnError() {
-	suite.mockDrivers[0].insertFixturesDefaultCall.Unset()
+	suite.mockDrivers[0].On("Truncate", mock.Anything).Return(nil)
+	suite.mockDrivers[1].On("Truncate", mock.Anything).Return(nil)
 	suite.mockDrivers[0].On("InsertFixtures", "table1", []interface{}{"some object"}).Return(nil)
 	suite.mockDrivers[0].On("InsertFixtures", "table5", []interface{}{"another object"}).Return(errors.New("Another error from the unit test."))
 
@@ -122,6 +129,27 @@ func (suite *dbfixturesTestSuite) TestDbfixturesInsertFixturesItShouldReturnAnEr
 	require.EqualError(suite.T(), res, "Another error from the unit test.")
 }
 
+func (suite *dbfixturesTestSuite) TestDbfixturesCloseDriversItShouldCallEachDriverCloseMethodOnce() {
+	suite.mockDrivers[0].On("Close").Return(nil)
+	suite.mockDrivers[1].On("Close").Return(nil)
+
+	fixturesHandler := dbfixtures.New(suite.mockDrivers[0], suite.mockDrivers[1])
+	fixturesHandler.CloseDrivers()
+
+	suite.mockDrivers[0].AssertNumberOfCalls(suite.T(), "Close", 1)
+	suite.mockDrivers[1].AssertNumberOfCalls(suite.T(), "Close", 1)
+}
+
+func (suite *dbfixturesTestSuite) TestDbfixturesCloseDriversItShouldReturnAnErrorIfTheCallToADriverCloseReturnsAnError() {
+	suite.mockDrivers[0].On("Close").Return(errors.New("error from the test close()"))
+	suite.mockDrivers[1].On("Close").Return(nil)
+
+	fixturesHandler := dbfixtures.New(suite.mockDrivers[0], suite.mockDrivers[1])
+	res := fixturesHandler.CloseDrivers()
+
+	require.EqualError(suite.T(), res, "error from the test close()")
+}
+
 func TestDbfixturesSuite(t *testing.T) {
 	suite.Run(t, new(dbfixturesTestSuite))
 }
@@ -131,8 +159,6 @@ mockDriver is a mock of the Driver struct to be used in testing.
 */
 type mockDriver struct {
 	mock.Mock
-	truncateDefaultCall       *mock.Call
-	insertFixturesDefaultCall *mock.Call
 }
 
 func (mock *mockDriver) Truncate(tableNames []string) error {
