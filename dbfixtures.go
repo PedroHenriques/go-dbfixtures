@@ -22,10 +22,16 @@ func (handler *dbfixtures) InsertFixtures(
 	fixtures map[string][]interface{},
 ) error {
 	for _, driver := range handler.drivers {
-		driver.Truncate(tableNames)
+		err := driver.Truncate(tableNames)
+		if err != nil {
+			return err
+		}
 
 		for _, tableName := range tableNames {
-			driver.InsertFixtures(tableName, fixtures[tableName])
+			err := driver.InsertFixtures(tableName, fixtures[tableName])
+			if err != nil {
+				return err
+			}
 		}
 	}
 

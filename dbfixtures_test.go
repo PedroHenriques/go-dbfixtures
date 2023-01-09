@@ -1,6 +1,7 @@
 package dbfixtures_test
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/PedroHenriques/go-dbfixtures"
@@ -77,8 +78,8 @@ func (suite *dbfixturesTestSuite) TestDbfixturesInsertFixturesItShouldCallEachDr
 	suite.mockDrivers[1].insertFixturesDefaultCall.Unset()
 
 	suite.mockDrivers[0].On("InsertFixtures", "table1", []interface{}{"some object"}).Return(nil)
-	suite.mockDrivers[1].On("InsertFixtures", "table1", []interface{}{"some object"}).Return(nil)
 	suite.mockDrivers[0].On("InsertFixtures", "table5", []interface{}{"another object"}).Return(nil)
+	suite.mockDrivers[1].On("InsertFixtures", "table1", []interface{}{"some object"}).Return(nil)
 	suite.mockDrivers[1].On("InsertFixtures", "table5", []interface{}{"another object"}).Return(nil)
 
 	fixtures := make(map[string][]interface{})
@@ -90,6 +91,35 @@ func (suite *dbfixturesTestSuite) TestDbfixturesInsertFixturesItShouldCallEachDr
 
 	suite.mockDrivers[0].AssertExpectations(suite.T())
 	suite.mockDrivers[1].AssertExpectations(suite.T())
+}
+
+func (suite *dbfixturesTestSuite) TestDbfixturesInsertFixturesItShouldReturnAnErrorIfACallToTheDriverTruncateReturnAnError() {
+	suite.mockDrivers[1].truncateDefaultCall.Unset()
+	suite.mockDrivers[1].On("Truncate", []string{"first table", "another table"}).Return(errors.New("Error from the unit test"))
+
+	fixtures := make(map[string][]interface{})
+	fixtures["first table"] = []interface{}{"some object"}
+	fixtures["another table"] = []interface{}{"another object"}
+
+	fixturesHandler := dbfixtures.New(suite.mockDrivers[0], suite.mockDrivers[1])
+	res := fixturesHandler.InsertFixtures([]string{"first table", "another table"}, fixtures)
+
+	require.EqualError(suite.T(), res, "Error from the unit test")
+}
+
+func (suite *dbfixturesTestSuite) TestDbfixturesInsertFixturesItShouldReturnAnErrorIfACallToTheDriverInsertFixturesReturnAnError() {
+	suite.mockDrivers[0].insertFixturesDefaultCall.Unset()
+	suite.mockDrivers[0].On("InsertFixtures", "table1", []interface{}{"some object"}).Return(nil)
+	suite.mockDrivers[0].On("InsertFixtures", "table5", []interface{}{"another object"}).Return(errors.New("Another error from the unit test."))
+
+	fixtures := make(map[string][]interface{})
+	fixtures["table1"] = []interface{}{"some object"}
+	fixtures["table5"] = []interface{}{"another object"}
+
+	fixturesHandler := dbfixtures.New(suite.mockDrivers[0], suite.mockDrivers[1])
+	res := fixturesHandler.InsertFixtures([]string{"table1", "table5"}, fixtures)
+
+	require.EqualError(suite.T(), res, "Another error from the unit test.")
 }
 
 func TestDbfixturesSuite(t *testing.T) {
