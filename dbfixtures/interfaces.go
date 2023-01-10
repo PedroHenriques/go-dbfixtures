@@ -6,12 +6,12 @@ type IDbfixtures interface {
 }
 
 type IDriver interface {
-	// clears the specified "tables" from any content
+	// clears the specified "tables" of any content
 	Truncate(tableNames []string) error
 
 	// inserts the supplied "rows" into the specified "table"
 	InsertFixtures(tableName string, fixtures []interface{}) error
 
-	// terminates the connection to the database
+	// cleanup and terminate the connection to the database
 	Close() error
 }

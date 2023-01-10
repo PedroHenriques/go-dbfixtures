@@ -1,3 +1,7 @@
+/*
+Package dbfixtures provides functionality to seed databases with test fixtures
+allowing an easy way to setup DBs before each test to a predictable state.
+*/
 package dbfixtures
 
 /*
