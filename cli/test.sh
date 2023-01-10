@@ -16,7 +16,7 @@ while [ "$#" -gt 0 ]; do
 done
 
 if [ "$DIRS" = "" ]; then
-  DIRS=".";
+  DIRS="./...";
 fi
 
 if [ $BUILD_DOCKER_IMG -eq 1  ]; then
