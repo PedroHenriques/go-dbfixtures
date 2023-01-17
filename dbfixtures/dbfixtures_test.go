@@ -22,7 +22,7 @@ func (suite *dbfixturesTestSuite) SetupTest() {
 	suite.mockDrivers = []*mockDriver{driver1, driver2}
 }
 
-func (suite *dbfixturesTestSuite) TestNewItShouldReturnAnInstanceOfTheTypeDbfixtures() {
+func (suite *dbfixturesTestSuite) TestNewItShouldReturnAnInstanceOfTheInterfaceIDbfixtures() {
 	res := dbfixtures.New()
 
 	require.Implements(suite.T(), (*dbfixtures.IDbfixtures)(nil), res)
