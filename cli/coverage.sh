@@ -16,9 +16,7 @@ while [ "$#" -gt 0 ]; do
 done
 
 if [ "$DIRS" = "" ]; then
-  for dir in ./dbfixtures/*/ ; do
-    DIRS="$DIRS $dir";
-  done
+  DIRS="./dbfixtures";
 fi
 
 if [ $BUILD_DOCKER_IMG -eq 1 ]; then
