@@ -12,4 +12,4 @@ RUN go mod tidy
 RUN go install github.com/jandelgado/gcov2lcov@latest
 
 # Install dependency needed for running tests in watch mode
-RUN go install github.com/mitranim/gow@latest
+RUN go install github.com/mitranim/gow@latest || true
