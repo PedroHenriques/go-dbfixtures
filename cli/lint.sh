@@ -12,4 +12,4 @@ while [ "$#" -gt 0 ]; do
   esac
 done
 
-docker run --rm -v "${PWD}/":"/usr/src/app/" $PULL_FLAG golangci-lint:latest /bin/sh -c "go mod tidy && golangci-lint run -v";
+docker run --rm -v "${PWD}/":"/usr/src/app/" $PULL_FLAG -w "/usr/src/app" golangci/golangci-lint:latest /bin/sh -c "go mod tidy && golangci-lint run -v";
