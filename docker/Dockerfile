@@ -1,4 +1,4 @@
-FROM golang:1.19-buster
+FROM golang:%%GO_VERSION%%-buster
 
 WORKDIR /usr/src/app
 
